@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Haiyan xsi:noNamespaceSchemaLocation="../haiyan-config.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<bill name="B_UC_USER" description="用户信息单据">
+		<billTable name="USER" dbName="SYSOPERATOR" description="用户表" tableIndex="1" />
+		<billTable name="ADDRESS" dbName="T_UC_ADDRESS" description="收货人地址表" tableIndex="2" />
+		<billTable name="POINTS" dbName="T_POINTS_TOTALPOINTS" description="可用积分表" tableIndex="3" />
+		<billID name="ID1" dbName="ID" description="用户Id" tableIndex="1"/>
+		<billID name="ID2" dbName="USERID" description="用户ID" tableIndex="2"/>
+		<billID name="ID3" dbName="ID" description="用户ID" tableIndex="3"/>
+		<billField name="USERNAME" dbName="NAME"  description="订货人姓名" tableIndex="1" >
+			<listColumn noquery="true"/>
+		</billField>
+		<billField name="USERMOBILE" dbName="MOBILE"  description="订货人手机" tableIndex="1" >
+			<listColumn noquery="true"/>
+		</billField>
+		<billField name="NAME" dbName="NAME"  description="收货人姓名" tableIndex="2" >
+			<listColumn noquery="true"/>
+		</billField>
+		<billField name="MOBILE" dbName="MOBILE"  description="收货人手机" tableIndex="2" >
+			<listColumn noquery="true"/>
+		</billField>
+		<billField name="PROVINCE" dbName="PROVINCE"  description="收货人省份" tableIndex="2" >
+			<listColumn noquery="true"/>
+		</billField>
+		<billField name="CITY" dbName="CITY"  description="收货人城市" tableIndex="2" >
+			<listColumn noquery="true"/>
+		</billField>
+		<billField name="COUNTY" dbName="COUNTY"  description="收货人地区" tableIndex="2" >
+			<listColumn noquery="true"/>
+		</billField>
+		<billField name="ADDRESS" dbName="ADDRESS"  description="收货人具体地址" tableIndex="2" >
+			<listColumn noquery="true"/>
+		</billField>
+		<billField name="POINTS" dbName="POINTS"  description="当前总积分" tableIndex="3" >
+			<listColumn noquery="true"/>
+		</billField>
+		<pluginInterceptor className="haiyan.interceptor.ConfigInterceptor" methodName="exp" pluginName="initBill" type="before"/>
+	</bill>
+</Haiyan>

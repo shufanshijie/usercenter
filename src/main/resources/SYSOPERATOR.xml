@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Haiyan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../haiyan.xsd">
+	<table name="SYSOPERATOR" description="人员">
+		<id name="ID" javaType="string" uiname="ID">
+			<component type="hidden" url="#"/>
+			<queryCondition type="equal"/>
+		</id>
+		<field name="WXID" uiname="WXID" description="微信ID" javaType="string" nullAllowed="true">
+			<component type="text"/>
+			<queryCondition type="equal"/>
+		</field>
+		<field name="DEFAULTADDRID" uiname="DEFAULTADDRID" description="默认地址ID" javaType="string" nullAllowed="true">
+			<component type="text"/>
+			<queryCondition type="equal"/>
+		</field>
+		<field name="PORTRAIT" uiname="PORTRAIT" description="头像" javaType="string" nullAllowed="false" length="256" defaultValue="http://images.5proapp.com/noportrait">
+			<component type="text"/>
+			<queryCondition type="equal"/>
+		</field>
+		<field name="NAME" uiname="NAME" description="用户名" javaType="string" safeHtml="true" >
+			<component type="text"/>
+			<queryCondition type="equal"/>
+		</field>
+		<field name="MOBILE" uiname="MOBILE" description="手机" javaType="string">
+			<component type="text"/>
+			<queryCondition type="equal"/>
+		</field>
+		<field name="PASSWORD" uiname="PASSWORD" description="密码" javaType="string" createable="true" updateable="true" >
+			<component type="hidden"/>
+			<queryCondition type="equal"/>
+		</field>
+		<field name="SEX" uiname="SEX" description="性别" javaType="string" nullAllowed="true">
+			<option displayName="MALE" value="MALE"/>
+			<option displayName="FEMALE" value="FEMALE"/>
+			<option displayName="OTHER" value="OTHER"/>
+			<component type="dropdown" />
+			<queryCondition type="equal"/>
+		</field>
+		<field name="USED" uiname="USED" description="是否使用" javaType="string" defaultValue="1" nullAllowed="false">
+			<option displayName="是" value="1"/>
+			<option displayName="否" value="2"/>
+			<component type="dropdown" />
+			<queryCondition type="equal"/>
+		</field>
+	</table>
+</Haiyan>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Haiyan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../haiyan.xsd">
+	<table name="T_UC_ADDRESS" description="收货地址信息">
+		<id name="ID" javaType="string" uiname="ID">
+			<component type="hidden" url="#"/>
+			<queryCondition type="equal"/>
+		</id>
+		<field name="USERID" uiname="USERID" description="订货人id" javaType="string" >
+			<component type="text"/>
+			<queryCondition type="equal"/>
+		</field>
+		<field name="USERWXID" uiname="USERWXID" description="订货人微信id" javaType="string" >
+			<component type="text"/>
+			<queryCondition type="equal"/>
+		</field>
+		<field name="NAME" uiname="NAME" description="收货人姓名" javaType="string" >
+			<component type="text"/>
+			<queryCondition type="equal"/>
+		</field>
+		<field name="MOBILE" uiname="MOBILE" description="收货人手机" javaType="string">
+			<component type="text"/>
+			<queryCondition type="equal"/>
+		</field>
+		<field name="PROVINCE" uiname="PROVINCE" description="收货人省份" javaType="string">
+			<component type="text"/>
+			<queryCondition type="equal"/>
+		</field>
+		<field name="CITY" uiname="CITY" description="收货人城市" javaType="string">
+			<component type="text"/>
+			<queryCondition type="equal"/>
+		</field>
+		<field name="COUNTY" uiname="COUNTY" description="收货人地区" javaType="string">
+			<component type="text"/>
+			<queryCondition type="equal"/>
+		</field>
+		<field name="ADDRESS" uiname="ADDRESS" description="收货人具体地址" javaType="string">
+			<component type="text"/>
+			<queryCondition type="equal"/>
+		</field>
+	</table>
+</Haiyan>
