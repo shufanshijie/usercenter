@@ -1,21 +1,22 @@
 package com.shufan.usercenter.dao.impl;
 
-import haiyan.bill.database.sql.DBBillManagerFactory;
+import haiyan.bill.database.BillDBContextFactory;
+import haiyan.bill.database.IBillDBManager;
+import haiyan.bill.database.sql.IBillDBContext;
 import haiyan.common.CloseUtil;
 import haiyan.common.exception.Warning;
 import haiyan.common.intf.config.IBillConfig;
 import haiyan.common.intf.database.IDBBill;
 import haiyan.common.intf.database.IDBFilter;
-import haiyan.common.intf.database.bill.IDBBillManager;
 import haiyan.common.intf.database.orm.IDBRecord;
 import haiyan.common.intf.database.orm.IDBResultSet;
 import haiyan.common.intf.session.IContext;
 import haiyan.config.castorgen.Table;
-import haiyan.config.intf.database.ITableDBManager;
-import haiyan.config.intf.session.ITableDBContext;
 import haiyan.config.util.ConfigUtil;
-import haiyan.orm.database.DBContextFactory;
+import haiyan.orm.database.TableDBContextFactory;
 import haiyan.orm.database.sql.SQLDBFilter;
+import haiyan.orm.intf.database.ITableDBManager;
+import haiyan.orm.intf.session.ITableDBContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +67,7 @@ public class UCDaoImpl implements UCDao {
 		ITableDBContext context = null;
 		ITableDBManager dbm = null;
 		try {
-			context = DBContextFactory.createDBContext(parentContext);
+			context = TableDBContextFactory.createDBContext(parentContext);
 			dbm = context.getDBM();
 			IDBRecord record = dbm.insert(context, getUserTable(), userRecord);
 			return record;
@@ -83,7 +84,7 @@ public class UCDaoImpl implements UCDao {
 		ITableDBContext context = null;
 		ITableDBManager dbm = null;
 		try {
-			context = DBContextFactory.createDBContext(parentContext);
+			context = TableDBContextFactory.createDBContext(parentContext);
 			dbm = context.getDBM();
 			IDBRecord record = dbm.update(context, getUserTable(), userRecord);
 			return record;
@@ -100,7 +101,7 @@ public class UCDaoImpl implements UCDao {
 		ITableDBContext context = null;
 		ITableDBManager dbm = null;
 		try {
-			context = DBContextFactory.createDBContext(parentContext);
+			context = TableDBContextFactory.createDBContext(parentContext);
 			dbm = context.getDBM();
 			IDBRecord result = dbm.select(context, getUserTable(), userId);
 			return result;
@@ -117,7 +118,7 @@ public class UCDaoImpl implements UCDao {
 		ITableDBContext context = null;
 		ITableDBManager dbm = null;
 		try {
-			context = DBContextFactory.createDBContext(parentContext);
+			context = TableDBContextFactory.createDBContext(parentContext);
 			dbm = context.getDBM();
 			IDBRecord record = dbm.createRecord();
 			record.set("WXID", userWXId);
@@ -138,7 +139,7 @@ public class UCDaoImpl implements UCDao {
 		ITableDBContext context = null;
 		ITableDBManager dbm = null;
 		try {
-			context = DBContextFactory.createDBContext(parentContext);
+			context = TableDBContextFactory.createDBContext(parentContext);
 			dbm = context.getDBM();
 			List<IDBRecord> records = new ArrayList<IDBRecord>();
 			for(String userId : userIds){
@@ -164,7 +165,7 @@ public class UCDaoImpl implements UCDao {
 		ITableDBContext context = null;
 		ITableDBManager dbm = null;
 		try {
-			context = DBContextFactory.createDBContext(parentContext);
+			context = TableDBContextFactory.createDBContext(parentContext);
 			dbm = context.getDBM();
 			IDBRecord record = dbm.insert(context, getAddrTable(), addrRecord);
 			return record;
@@ -181,7 +182,7 @@ public class UCDaoImpl implements UCDao {
 		ITableDBContext context = null;
 		ITableDBManager dbm = null;
 		try {
-			context = DBContextFactory.createDBContext(parentContext);
+			context = TableDBContextFactory.createDBContext(parentContext);
 			dbm = context.getDBM();
 			IDBRecord record = dbm.update(context, getAddrTable(), addrRecord);
 			return record;
@@ -198,7 +199,7 @@ public class UCDaoImpl implements UCDao {
 		ITableDBContext context = null;
 		ITableDBManager dbm = null;
 		try {
-			context = DBContextFactory.createDBContext(parentContext);
+			context = TableDBContextFactory.createDBContext(parentContext);
 			dbm = context.getDBM();
 			IDBRecord record = dbm.createRecord();
 			record.set("USERID", userId);
@@ -217,7 +218,7 @@ public class UCDaoImpl implements UCDao {
 		ITableDBContext context = null;
 		ITableDBManager dbm = null;
 		try {
-			context = DBContextFactory.createDBContext(parentContext);
+			context = TableDBContextFactory.createDBContext(parentContext);
 			dbm = context.getDBM();
 			IDBRecord record = dbm.createRecord();
 			record.set("USERWXID", userWXId);
@@ -236,7 +237,7 @@ public class UCDaoImpl implements UCDao {
 		ITableDBContext context = null;
 		ITableDBManager dbm = null;
 		try {
-			context = DBContextFactory.createDBContext(parentContext);
+			context = TableDBContextFactory.createDBContext(parentContext);
 			dbm = context.getDBM();
 			boolean result = dbm.delete(context, getAddrTable(), userIds);
 			return result;
@@ -247,17 +248,16 @@ public class UCDaoImpl implements UCDao {
 			CloseUtil.close(context);
 		}
 	}
-
 	@Override
 	public IDBBill selectUserBillById(String userId) {
-		IContext context = null;
-		IDBBillManager bbm = null;
+		IBillDBContext context = null;
+		IBillDBManager bbm = null;
 		try {
-			context = DBContextFactory.createDBContext(parentContext);
-			bbm = DBBillManagerFactory.createDBBillManager(context);
-			IDBBill bill = bbm.createBill(getUserBill(), false);
+			context = BillDBContextFactory.createBillDBContext(parentContext, getUserBill());
+			bbm = context.getBBM();
+			IDBBill bill = bbm.createBill(context, getUserBill(), false);
 			bill.setBillID(userId);
-			bbm.loadBill(bill);
+			bbm.loadBill(context, bill);
 			return bill;
 		} catch (Throwable e) {
 			throw Warning.wrapException(e);
@@ -268,15 +268,15 @@ public class UCDaoImpl implements UCDao {
 	}
 	@Override
 	public IDBBill selectUserBillByWXId(String userWXId) {
-		IContext context = null;
-		IDBBillManager bbm = null;
+		IBillDBContext context = null;
+		IBillDBManager bbm = null;
 		try {
-			context = DBContextFactory.createDBContext(parentContext);
-			bbm = DBBillManagerFactory.createDBBillManager(context);
-			IDBBill bill = bbm.createBill(getUserBill(), false);
+			context = BillDBContextFactory.createBillDBContext(parentContext, getUserBill());
+			bbm = context.getBBM();
+			IDBBill bill = bbm.createBill(context, getUserBill(), false);
 			IDBFilter filter = new SQLDBFilter(" and WXID = ? ",new Object[]{userWXId});
 			bill.setDBFilter(1,  filter);
-			bbm.loadBill(bill);
+			bbm.loadBill(context, bill);
 			return bill;
 		} catch (Throwable e) {
 			throw Warning.wrapException(e);
