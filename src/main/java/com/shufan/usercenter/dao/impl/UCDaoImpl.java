@@ -195,7 +195,7 @@ public class UCDaoImpl implements UCDao {
 	}
 
 	@Override
-	public IDBResultSet selectAddrById(String userId,int maxPageSize,int page) {
+	public IDBResultSet selectAddrByUserId(String userId,int maxPageSize,int page) {
 		ITableDBContext context = null;
 		ITableDBManager dbm = null;
 		try {
@@ -282,6 +282,22 @@ public class UCDaoImpl implements UCDao {
 			throw Warning.wrapException(e);
 		}finally{
 			CloseUtil.close(bbm);
+			CloseUtil.close(context);
+		}
+	}
+	@Override
+	public IDBRecord selectAddrById(String addrId) {
+		ITableDBContext context = null;
+		ITableDBManager dbm = null;
+		try {
+			context = TableDBContextFactory.createDBContext(parentContext);
+			dbm = context.getDBM();
+			IDBRecord result = dbm.select(context, getAddrTable(), addrId);
+			return result;
+		} catch (Throwable e) {
+			throw Warning.wrapException(e);
+		}finally{
+			CloseUtil.close(dbm);
 			CloseUtil.close(context);
 		}
 	}

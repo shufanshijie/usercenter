@@ -18,9 +18,10 @@ public interface UCDao {
 	public abstract IDBRecord selectUserByWXId(String userWXId);
 	public abstract boolean deleteUser(String[] userIds);
 	
+	public abstract IDBRecord selectAddrById(String addrId);
 	public abstract IDBRecord addAddr(IDBRecord addrRecord);
 	public abstract IDBRecord updateAddr(IDBRecord addrRecord);
-	public abstract IDBResultSet selectAddrById(String userId,int maxPageSize,int page);
+	public abstract IDBResultSet selectAddrByUserId(String userId,int maxPageSize,int page);
 	public abstract IDBResultSet selectAddrByWXId(String userWXId,int maxPageSize,int page);
 	public abstract boolean deleteAddrs(String[] userIds);
 	
