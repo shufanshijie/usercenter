@@ -40,7 +40,7 @@ public class UCController {
 	 * @param res
 	 * @return
 	 */
-	@RequestMapping(value = "user/{userID}", method = RequestMethod.GET)
+	@RequestMapping(value = "usercenter/user/{userID}", method = RequestMethod.GET)
 	public ModelAndView getUserCenterById(HttpServletRequest req, HttpServletResponse res,@PathVariable("userID")String userId){
 		IWebContext context = WebContextFactory.createDBContext(req, res);
 		UCDao dao = new UCDaoImpl(context);
@@ -55,7 +55,7 @@ public class UCController {
 	 * @param res
 	 * @return
 	 */
-	@RequestMapping(value = "wx/{userWXID}", method = RequestMethod.GET)
+	@RequestMapping(value = "usercenter/wx/{userWXID}", method = RequestMethod.GET)
 	public ModelAndView getUserCenterByWXId(HttpServletRequest req, HttpServletResponse res,@PathVariable("userWXID")String userWXID){
 		IWebContext context = WebContextFactory.createDBContext(req, res);
 		UCDao dao = new UCDaoImpl(context);
@@ -113,7 +113,7 @@ public class UCController {
 			CloseUtil.close(context);
 			CloseUtil.close(br);
 		}
-		return new ModelAndView("redirect:/wx/"+userWXID);
+		return new ModelAndView("redirect:/usercenter/wx/"+userWXID);
 	}
 	/**
 	 * 根据用户Id获取用户收货地址列表
@@ -260,7 +260,13 @@ public class UCController {
 				json.put("addr", addrJson);
 			}
 			writer = res.getWriter();
-			writer.write(json.toString());
+			String backData = json.toString();
+			String callBack = req.getParameter("jsonCallBack");
+			if(callBack != null){
+				writer.write(callBack+"("+backData+")");
+			}else{
+				writer.write(backData);
+			}
 			writer.flush();
 		} catch (Throwable e) {
 			throw new Warning(500,e);
