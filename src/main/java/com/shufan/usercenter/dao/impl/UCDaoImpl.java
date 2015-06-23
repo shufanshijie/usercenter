@@ -168,6 +168,10 @@ public class UCDaoImpl implements UCDao {
 			context = TableDBContextFactory.createDBContext(parentContext);
 			dbm = context.getDBM();
 			IDBRecord record = dbm.insert(context, getAddrTable(), addrRecord);
+			IDBRecord userRecord = dbm.createRecord();
+			userRecord.set("ID", record.get("USERID"));
+			userRecord.set("DEFAULTADDRID", record.getString("ID"));
+			dbm.update(context, getUserTable(), userRecord);
 			return record;
 		} catch (Throwable e) {
 			throw Warning.wrapException(e);
