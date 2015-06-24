@@ -14,7 +14,6 @@ import haiyan.web.session.WebContextFactory;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.io.Writer;
 
 import javax.servlet.http.HttpServletRequest;
@@ -42,12 +41,17 @@ public class UCController {
 	 */
 	@RequestMapping(value = "usercenter/user/{userID}", method = RequestMethod.GET)
 	public ModelAndView getUserCenterById(HttpServletRequest req, HttpServletResponse res,@PathVariable("userID")String userId){
-		IWebContext context = WebContextFactory.createDBContext(req, res);
-		UCDao dao = new UCDaoImpl(context);
-		IDBRecord record = dao.selectUserById(userId);
-		ModelMap model = new ModelMap();
-		model.putAll(record.getDataMap());
-		return new ModelAndView("userCenter.vm",model);
+		IWebContext context =null;
+		try {
+			context = WebContextFactory.createDBContext(req, res);
+			UCDao dao = new UCDaoImpl(context);
+			IDBRecord record = dao.selectUserById(userId);
+			ModelMap model = new ModelMap();
+			model.putAll(record.getDataMap());
+			return new ModelAndView("userCenter.vm",model);
+		}finally{
+			CloseUtil.close(context);
+		}
 	}
 	/**
 	 * 根据用户微信Id获取用户资料
@@ -56,21 +60,23 @@ public class UCController {
 	 * @return
 	 */
 	@RequestMapping(value = "usercenter/wx/{userWXID}", method = RequestMethod.GET)
-	public ModelAndView getUserCenterByWXId(HttpServletRequest req, HttpServletResponse res,@PathVariable("userWXID")String userWXID){
-		IWebContext context = WebContextFactory.createDBContext(req, res);
-		UCDao dao = new UCDaoImpl(context);
-		IDBRecord record = dao.selectUserByWXId(userWXID);
+	public void getUserCenterByWXId(HttpServletRequest req, HttpServletResponse res,@PathVariable("userWXID")String userWXID){
+		IWebContext context =null;
+		Writer pw = null;
 		try {
-			PrintWriter pw = res.getWriter();
+			context = WebContextFactory.createDBContext(req, res);
+			UCDao dao = new UCDaoImpl(context);
+			IDBRecord record = dao.selectUserByWXId(userWXID);
+			pw = res.getWriter();
 			pw.write(record.toString());
 			pw.flush();
 			pw.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new Warning(500,e);
+		}finally{
+			CloseUtil.close(pw);
+			CloseUtil.close(context);
 		}
-		//TODO 返回json数据
-		return new ModelAndView("userCenter.vm");
 	}
 	/**
 	 * 根据用户微信Id更新用户资料
@@ -107,8 +113,7 @@ public class UCController {
 	        	dao.updateUser(userRecord);
 	        }
 		} catch (Throwable e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new Warning(500,e);
 		}finally{
 			CloseUtil.close(context);
 			CloseUtil.close(br);
@@ -124,14 +129,19 @@ public class UCController {
 	@RequestMapping(value = "addrs/user/{userID}/{pageIndex}", method = RequestMethod.GET)
 	public ModelAndView getAddressListByUserId(HttpServletRequest req, HttpServletResponse res
 			,@PathVariable("userID")String userId,@PathVariable("pageIndex")int pageIndex){
-		IWebContext context = WebContextFactory.createDBContext(req, res);
-		String sPageSize = req.getParameter("maxPageSize");
-		int maxPageSize = sPageSize == null ? 20 : Integer.parseInt(sPageSize);
-		UCDao dao = new UCDaoImpl(context);
-		IDBResultSet list = dao.selectAddrByUserId(userId, maxPageSize, pageIndex);
-		ModelMap model = new ModelMap();
-		model.put("list", list.getRecords());
-		return new ModelAndView("addrList.vm",model);
+		IWebContext context = null;
+		try {
+			context = WebContextFactory.createDBContext(req, res);
+			String sPageSize = req.getParameter("maxPageSize");
+			int maxPageSize = sPageSize == null ? 20 : Integer.parseInt(sPageSize);
+			UCDao dao = new UCDaoImpl(context);
+			IDBResultSet list = dao.selectAddrByUserId(userId, maxPageSize, pageIndex);
+			ModelMap model = new ModelMap();
+			model.put("list", list.getRecords());
+			return new ModelAndView("addrList.vm",model);
+		}finally{
+			CloseUtil.close(context);
+		}
 	}
 	/**
 	 * 根据用户微信Id获取用户收货地址列表
@@ -142,14 +152,19 @@ public class UCController {
 	@RequestMapping(value = "addrs/wx/{userWXID}/{pageIndex}", method = RequestMethod.GET)
 	public ModelAndView getAddressListByUserWXId(HttpServletRequest req, HttpServletResponse res
 			,@PathVariable("userWXID")String userWXID,@PathVariable("pageIndex")int pageIndex){
-		IWebContext context = WebContextFactory.createDBContext(req, res);
-		String sPageSize = req.getParameter("maxPageSize");
-		int maxPageSize = sPageSize == null ? 20 : Integer.parseInt(sPageSize);
-		UCDao dao = new UCDaoImpl(context);
-		IDBResultSet list = dao.selectAddrByWXId(userWXID, maxPageSize, pageIndex);
-		ModelMap model = new ModelMap();
-		model.put("list", list.getRecords());
-		return new ModelAndView("addrList.vm",model);
+		IWebContext context = null;
+		try {
+			context = WebContextFactory.createDBContext(req, res);
+			String sPageSize = req.getParameter("maxPageSize");
+			int maxPageSize = sPageSize == null ? 20 : Integer.parseInt(sPageSize);
+			UCDao dao = new UCDaoImpl(context);
+			IDBResultSet list = dao.selectAddrByWXId(userWXID, maxPageSize, pageIndex);
+			ModelMap model = new ModelMap();
+			model.put("list", list.getRecords());
+			return new ModelAndView("addrList.vm",model);
+		}finally{
+			CloseUtil.close(context);
+		}
 	}
 	
 	/**
@@ -159,19 +174,31 @@ public class UCController {
 	 * @return
 	 */
 	@RequestMapping(value = "user/add", method = RequestMethod.POST)
-	public ModelMap addUser(HttpServletRequest req, HttpServletResponse res){
-		IWebContext context = WebContextFactory.createDBContext(req, res);
-		UCDao dao = new UCDaoImpl(context);
-		IDBRecord record = null;
+	public void addUser(HttpServletRequest req, HttpServletResponse res){
+		IWebContext context = null;
+		Writer writer = null;
 		try {
-			record = new RequestRecord(req, res, dao.getAddrTable());
-			record = dao.addUser(record);
-		} catch (Throwable e) {
+			context = WebContextFactory.createDBContext(req, res);
+			UCDao dao = new UCDaoImpl(context);
+			IDBRecord record = null;
+			try {
+				record = new RequestRecord(req, res, dao.getUserTable());
+				record.set("ID", record.getString("WXID"));
+				record = dao.addUser(record);
+			} catch (Throwable e) {
+				throw new Warning(500,e);
+			}
+			JSONObject json = new JSONObject();
+			json.putAll(record.getDataMap());
+			writer = res.getWriter();
+			writer.write(json.toString());
+			writer.flush();
+		} catch (Exception e) {
 			throw new Warning(500,e);
+		}finally{
+			CloseUtil.close(writer);
+			CloseUtil.close(context);
 		}
-		ModelMap model = new ModelMap();
-		model.putAll(record.getDataMap());
-		return model;
 	}
 	/**
 	 * 添加用户信息
@@ -181,18 +208,21 @@ public class UCController {
 	 */
 	@RequestMapping(value = "user/update", method = RequestMethod.POST)
 	public ModelMap updateUser(HttpServletRequest req, HttpServletResponse res){
-		IWebContext context = WebContextFactory.createDBContext(req, res);
-		UCDao dao = new UCDaoImpl(context);
-		IDBRecord record = null;
+		IWebContext context = null;
 		try {
+			context = WebContextFactory.createDBContext(req, res);
+			UCDao dao = new UCDaoImpl(context);
+			IDBRecord record = null;
 			record = new RequestRecord(req, res, dao.getAddrTable());
 			record = dao.updateUser(record);
+			ModelMap model = new ModelMap();
+			model.putAll(record.getDataMap());
+			return model;
 		} catch (Throwable e) {
 			throw new Warning(500,e);
+		}finally{
+			CloseUtil.close(context);
 		}
-		ModelMap model = new ModelMap();
-		model.putAll(record.getDataMap());
-		return model;
 	}
 	/**
 	 * 添加用户信息
@@ -202,16 +232,21 @@ public class UCController {
 	 */
 	@RequestMapping(value = "user/delete", method = RequestMethod.POST)
 	public ModelMap deleteUser(HttpServletRequest req, HttpServletResponse res){
-		String ids = req.getParameter("IDS");
-		boolean success = false;
-		if(ids != null){
-			IWebContext context = WebContextFactory.createDBContext(req, res);
-			UCDao dao = new UCDaoImpl(context);
-			success = dao.deleteUser(ids.split(","));
+		IWebContext context = null;
+		try {
+			String ids = req.getParameter("IDS");
+			boolean success = false;
+			if(ids != null){
+				context = WebContextFactory.createDBContext(req, res);
+				UCDao dao = new UCDaoImpl(context);
+				success = dao.deleteUser(ids.split(","));
+			}
+			ModelMap model = new ModelMap();
+			model.put("success",success);
+			return model;
+		}finally{
+			CloseUtil.close(context);
 		}
-		ModelMap model = new ModelMap();
-		model.put("success",success);
-		return model;
 	}
 	/**
 	 * 添加地址信息
@@ -221,18 +256,23 @@ public class UCController {
 	 */
 	@RequestMapping(value = "addr/add", method = RequestMethod.POST)
 	public ModelMap addAddr(HttpServletRequest req, HttpServletResponse res){
-		IWebContext context = WebContextFactory.createDBContext(req, res);
-		UCDao dao = new UCDaoImpl(context);
-		IDBRecord record = null;
+		IWebContext context = null;
 		try {
-			record = new RequestRecord(req, res, dao.getAddrTable());
-			record = dao.addAddr(record);
-		} catch (Throwable e) {
-			throw new Warning(500,e);
+			context = WebContextFactory.createDBContext(req, res);
+			UCDao dao = new UCDaoImpl(context);
+			IDBRecord record = null;
+			try {
+				record = new RequestRecord(req, res, dao.getAddrTable());
+				record = dao.addAddr(record);
+			} catch (Throwable e) {
+				throw new Warning(500,e);
+			}
+			ModelMap model = new ModelMap();
+			model.putAll(record.getDataMap());
+			return model;
+		}finally{
+			CloseUtil.close(context);
 		}
-		ModelMap model = new ModelMap();
-		model.putAll(record.getDataMap());
-		return model;
 	}
 	/**
 	 * 获取默认地址
@@ -255,9 +295,11 @@ public class UCController {
 			}else{
 				json.put("userWXID",userWXID);
 				IDBRecord addr = dao.selectAddrById((String)record.get("DEFAULTADDRID"));
-				JSONObject addrJson = new JSONObject();
-				addrJson.putAll(addr.getDataMap());
-				json.put("addr", addrJson);
+				if(addr != null){
+					JSONObject addrJson = new JSONObject();
+					addrJson.putAll(addr.getDataMap());
+					json.put("addr", addrJson);
+				}
 			}
 			writer = res.getWriter();
 			String backData = json.toString();
@@ -295,18 +337,23 @@ public class UCController {
 	 */
 	@RequestMapping(value = "addr/update", method = RequestMethod.POST)
 	public ModelMap updateAddr(HttpServletRequest req, HttpServletResponse res){
-		IWebContext context = WebContextFactory.createDBContext(req, res);
-		UCDao dao = new UCDaoImpl(context);
-		IDBRecord record = null;
+		IWebContext context = null;
 		try {
-			record = new RequestRecord(req, res, dao.getAddrTable());
-			record = dao.updateAddr(record);
-		} catch (Throwable e) {
-			throw new Warning(500,e);
+			context = WebContextFactory.createDBContext(req, res);
+			UCDao dao = new UCDaoImpl(context);
+			IDBRecord record = null;
+			try {
+				record = new RequestRecord(req, res, dao.getAddrTable());
+				record = dao.updateAddr(record);
+			} catch (Throwable e) {
+				throw new Warning(500,e);
+			}
+			ModelMap model = new ModelMap();
+			model.putAll(record.getDataMap());
+			return model;
+		}finally{
+			CloseUtil.close(context);
 		}
-		ModelMap model = new ModelMap();
-		model.putAll(record.getDataMap());
-		return model;
 	}
 	/**
 	 * 根据地址id删除地址
@@ -316,16 +363,21 @@ public class UCController {
 	 */
 	@RequestMapping(value = "addr/delete", method = RequestMethod.POST)
 	public ModelMap deleteAddr(HttpServletRequest req, HttpServletResponse res){
-		String ids = req.getParameter("ADDRIDS");
-		boolean success = false;
-		if(ids != null){
-			IWebContext context = WebContextFactory.createDBContext(req, res);
-			UCDao dao = new UCDaoImpl(context);
-			success = dao.deleteAddrs(ids.split(","));
+		IWebContext context = null;
+		try {
+			String ids = req.getParameter("ADDRIDS");
+			boolean success = false;
+			if(ids != null){
+				context = WebContextFactory.createDBContext(req, res);
+				UCDao dao = new UCDaoImpl(context);
+				success = dao.deleteAddrs(ids.split(","));
+			}
+			ModelMap model = new ModelMap();
+			model.put("success",success);
+			return model;
+		}finally{
+			CloseUtil.close(context);
 		}
-		ModelMap model = new ModelMap();
-		model.put("success",success);
-		return model;
 	}
 	/**
 	 * 下单获取用户信息ByUserId
